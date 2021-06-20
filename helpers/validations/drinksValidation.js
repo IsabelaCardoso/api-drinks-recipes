@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { User } = require('../../models');
+const { Drink } = require('../../models');
 const throwNewError = require('./throwNewError');
 
 const filtersOptionalItems = (data, listType) => {
@@ -30,16 +30,8 @@ const validDrinksEntries = (data) => {
     filtersOptionalItems(data, 'stringredient');
     filtersOptionalItems(data, 'strmeasure');
 
-  if (validateMandatoryItems.error) throwNewError(schema.error.details[0].message, 'bad_request');
+  if (validateMandatoryItems.error) throwNewError(validateMandatoryItems.error.details[0].message, 'bad_request');
 };
-
-const validateSearch = (data) => {
-  const searchSchema = Joi.object({
-    letter: Joi.string().max(1).required(),
-    name: Joi.string().min(2).required(),
-    }).validate(data);
-  if(searchSchema.error) throwNewError(schema.error.details[0].message, 'bad_request');
-}
 
 const checkIfDrinkExists = async(drinkId, userId) => {
   const drink = await Drink.findByPk(drinkId);
@@ -48,19 +40,14 @@ const checkIfDrinkExists = async(drinkId, userId) => {
   return null;
 };
 
-const limitsEditableFields = () => {
-  const schema = Joi.object({
-    id: Joi.string().required(),
-    userId: Joi.string().required(),
-    userId: Joi.custom((value, helpers) => (
-      value ? helpers.message('Categories cannot be edited') : value)),
-  }).validate(data);
-  if (schema.error) throwNewError(schema.error.details[0].message, 'bad_request');
+const limitsEditableFields = (data) => {
+  if (data.id) throwNewError('Drink id cannot be edited', 'bad_request');
+  if (data.strDrink) throwNewError('Drink name cannot be edited', 'bad_request');
+  if (data.userId) throwNewError('User id cannot be edited', 'bad_request');
 };
 
 module.exports = {
   validDrinksEntries,
-  validateSearch,
   checkIfDrinkExists,
-  limitsEditableFields
+  limitsEditableFields,
 }

@@ -1,7 +1,13 @@
 const { Op } = require('sequelize');
+const Joi = require('joi');
 const { Drink } = require('../models');
 const { decodeToken } = require('../helpers/middlewares/tokenMiddleware');
-const { validDrinksEntries } = require('../helpers/validations/drinksValidation');
+const {
+  validDrinksEntries,
+  checkIfDrinkExists,
+  limitsEditableFields,
+  validateSearch,
+} = require('../helpers/validations/drinksValidation');
 const throwNewError = require('../helpers/validations/throwNewError');
 
 const addDrink = async (body, authorization) => {
@@ -14,7 +20,8 @@ const addDrink = async (body, authorization) => {
 };
 
 const findByFirstLetter = async (letter) => {
-  validateSearch({ letter });
+  const validateLetter = Joi.object({ letter: Joi.string().max(1) }).validate({ letter });
+  if (validateLetter.error) throwNewError(validateLetter.error.details[0].message, 'bad_request');
 
   const matchDrinks = Drink.findAll({
     where: { strDrink: { [Op.startsWith]: `${letter}%` } }
@@ -23,7 +30,8 @@ const findByFirstLetter = async (letter) => {
 };
 
 const findByName = async (name) => {
-  validateSearch({ name });
+  const validateName = Joi.object({ name: Joi.string().min(2) }).validate({ name });
+  if (validateName.error) throwNewError(validateName.error.details[0].message, 'bad_request');
 
   const matchDrinks = Drink.findAll({
     where: { strDrink: { [Op.substring]: `%${name}%` } }
@@ -32,18 +40,19 @@ const findByName = async (name) => {
 };
 
 const updateById = async (id, body, userId) => {
-  const { title, content } = body;
-  await checkUserIdPost(id, userId);
-  await validUpdatePost(body);
-  await BlogPosts.update({ title, content }, { where: { id } });
-  const updatedPost = await BlogPosts.findByPk(id, {
-    include: [
-      { model: Users, as: 'user', attributes: { excludes: ['password'] } },
-      { model: Categories, as: 'categories', through: { attributes: [] } },
-    ],
-  });
+  await checkIfDrinkExists(id, userId);
+  limitsEditableFields(body);
+  console.log('cheguei aqui')
+  await Drink.update({ ...body, updated: new Date() }, { where: { id } });
 
-  return updatedPost;
+  const updatedDrink = await Drink.findByPk(id);
+  return updatedDrink;
+};
+
+const excludeById = async (id, userId) => {
+  await checkIfDrinkExists(id, userId);
+  await Drink.destroy({ where: { id } });
+  return 'deleted';
 };
 
 module.exports = {
@@ -51,4 +60,5 @@ module.exports = {
   findByFirstLetter,
   findByName,
   updateById,
+  excludeById,
 };

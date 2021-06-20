@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const { User } = require('../../models');
+const throwNewError = require('./throwNewError');
 
 const validEntries = (data) => {
   const schema = Joi.object({
@@ -8,20 +9,13 @@ const validEntries = (data) => {
     password: Joi.string().min(6).required(),
     email: Joi.string().email().required(),
     }).validate(data);
-  if (schema.error) {
-    const error = new Error(schema.error.details[0].message);
-    error.statusCode = 'bad_request';
-    throw error;
-  }
+
+  if (schema.error) throwNewError(schema.error.details[0].message, 'bad_request');
 };
 
 const alreadyExistEmail = async (email) => {
   const existUser = await User.findOne({ where: { email } });
-  if (existUser) {
-    const error = new Error('User already registered');
-    error.statusCode = 'conflict';
-    throw error;
-  }
+  if (existUser) throwNewError('User already registered', 'conflict');
 };
 
 module.exports = {

@@ -31,7 +31,7 @@ const errorMiddleware = (err, _req, res, _next) => {
     unauthorizedError(err, res);
     notFoundError(err, res);
   } else {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json([err.message, 'teste']);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err.message);
   }
 };
 

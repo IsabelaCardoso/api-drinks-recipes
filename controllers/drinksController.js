@@ -17,6 +17,13 @@ const getAllDrinks = rescue(async (req, res) => {
   res.status(StatusCodes.OK).json(allDrinks);
 });
 
+const getById = rescue(async (req, res) => {
+  const { id } = req.params;
+  console.log('id', id);
+  const drink = await drinksService.findById(id);
+
+  res.status(StatusCodes.OK).json(drink);
+});
 const getByFirstLetter = rescue(async (req, res) => {
   const { letter } = req.params;
   const drinksList = await drinksService.findByFirstLetter(letter);
@@ -26,8 +33,8 @@ const getByFirstLetter = rescue(async (req, res) => {
 
 const getByName = rescue(async (req, res) => {
   const { name } = req.params;
+  console.log('token', req.headers.authorization)
   const drink = await drinksService.findByName(name);
-
   res.status(StatusCodes.CREATED).json({ drinks: drink });
 });
 
@@ -57,4 +64,5 @@ module.exports = {
   getByName,
   updateDrinkById,
   deleteDrinkById,
+  getById,
 };

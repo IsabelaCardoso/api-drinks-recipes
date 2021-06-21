@@ -5,11 +5,12 @@ require('dotenv').config();
 const validateToken = async (req, res, next) => {
   try {
     const { authorization } = req.headers;
+    console.log('token', authorization)
     if (!authorization) {
       return res.status(StatusCodes.UNAUTHORIZED)
         .json({ message: 'Token not found' });
       }
-    jwt.verify(authorization, process.env.JWT_SECRET);
+    console.log(jwt.verify(authorization, process.env.JWT_SECRET));
 
     next();
   } catch (error) {

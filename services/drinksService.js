@@ -33,10 +33,25 @@ const findByName = async (name) => {
   const validateName = Joi.object({ name: Joi.string().min(2) }).validate({ name });
   if (validateName.error) throwNewError(validateName.error.details[0].message, 'bad_request');
 
-  const matchDrinks = Drink.findAll({
+  let matchDrinks = Drink.findAll({
     where: { strDrink: { [Op.substring]: `%${name}%` } }
   }).then((result) => result);
+  if (matchDrinks.drinks.length < 1) {
+    matchDrinks = undefined;
+    return matchDrinks;
+  }
+  console.log('MATCHDRINK', matchDrinks);
   return matchDrinks;
+};
+
+const findById = async (id) => {
+  const updatedDrink = await Drink.findAll();
+  return updatedDrink;
+
+  // const drink = await Drink.findByPk(id);
+  // if (!drink) throwNewError('Drinks does not exist', 'not_found');
+  // console.log('drink service', drink);
+  // return drink;
 };
 
 const updateById = async (id, body, userId) => {
@@ -61,4 +76,5 @@ module.exports = {
   findByName,
   updateById,
   excludeById,
+  findById,
 };

@@ -26,6 +26,7 @@ const userLogin = async (email, password) => {
     delete user.password;
     return user;
   }
+  return user;
   throwNewError('Invalid fields', 'bad_request');
 };
 

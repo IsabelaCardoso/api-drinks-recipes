@@ -3,6 +3,7 @@ const { StatusCodes } = require('http-status-codes');
 const { decodeToken } = require('../helpers/middlewares/tokenMiddleware');
 const drinksService = require('../services/drinksService');
 const { Drink, Ingredient } = require('../models');
+const { checkIfDrinkExists } = require('../helpers/validations/drinksValidation');
 
 const newDrink = rescue(async (req, res) => {
   const body = req.body;
@@ -22,11 +23,12 @@ const getAllDrinks = rescue(async (req, res) => {
 
 const getById = rescue(async (req, res) => {
   const { id } = req.params;
-  console.log('id', id);
-  const drink = await drinksService.findById(id);
+  await checkIfDrinkExists(id, 'findByPk')
+  const drink = await drinksService.findOneById(id);
 
   res.status(StatusCodes.OK).json(drink);
 });
+
 const getByFirstLetter = rescue(async (req, res) => {
   const { letter } = req.params;
   const drinksList = await drinksService.findByFirstLetter(letter);

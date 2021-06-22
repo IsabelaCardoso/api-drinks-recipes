@@ -24,7 +24,7 @@ const findOneById = async(id) => {
 
 const addDrink = async (body, authorization) => {
   const { name, category, instructions, image} = body;
-  await checkIfDrinkExists(name, 'addDrink');
+  await checkIfDrinkExists(name, 'findByName');
   validateDrinksTableEntries({ name, category, instructions, image });
   const ingredientsList = validateIngredients(body);
   console.log('INGRED LIST', ingredientsList);
@@ -58,24 +58,12 @@ const findAllByName = async (name) => {
     matchDrinks = undefined;
     return matchDrinks;
   }
-  console.log('MATCHDRINK', matchDrinks);
   return matchDrinks;
 };
 
-const findById = async (id) => {
-  const updatedDrink = await Drink.findAll();
-  return updatedDrink;
-
-  // const drink = await Drink.findByPk(id);
-  // if (!drink) throwNewError('Drinks does not exist', 'not_found');
-  // console.log('drink service', drink);
-  // return drink;
-};
-
 const updateById = async (id, body, userId) => {
-  await checkIfDrinkExists(id, 'updateDrink');
+  await checkIfDrinkExists(id, 'findByPk');
   limitsEditableFields(body);
-  console.log('cheguei aqui')
   await Drink.update({ ...body, updated: new Date() }, { where: { id } });
 
   const updatedDrink = await Drink.findByPk(id);
@@ -90,9 +78,9 @@ const excludeById = async (id, userId) => {
 
 module.exports = {
   addDrink,
+  findOneById,
   findByFirstLetter,
   findAllByName,
   updateById,
   excludeById,
-  findById,
 };

@@ -38,8 +38,7 @@ const getByFirstLetter = rescue(async (req, res) => {
 
 const getByName = rescue(async (req, res) => {
   const { name } = req.params;
-  console.log('token', req.headers.authorization)
-  const drink = await drinksService.findByName(name);
+  const drink = await drinksService.findAllByName(name);
   res.status(StatusCodes.CREATED).json({ drinks: drink });
 });
 

@@ -7,7 +7,7 @@ const {
   checkIfDrinkExists,
   limitsEditableFields,
   validateIngredients,
-  drinkAlreadyExist,
+  validateName,
   validateSearch,
 } = require('../helpers/validations/drinksValidation');
 const throwNewError = require('../helpers/validations/throwNewError');
@@ -51,13 +51,14 @@ const findByFirstLetter = async (letter) => {
 };
 
 const findAllByName = async (name) => {
-  const validateName = Joi.object({ name: Joi.string().min(2) }).validate({ name });
-  if (validateName.error) throwNewError(validateName.error.details[0].message, 'bad_request');
+  validateName(name);
 
-  let matchDrinks = Drink.findAll({
-    where: { strDrink: { [Op.substring]: `%${name}%` } }
+  let matchDrinks = await Drink.findAll({
+    where: { name: { [Op.substring]: `%${name}%` } },
+    include: [{ model: Ingredient, as: 'ingredients' }],
   }).then((result) => result);
-  if (matchDrinks.drinks.length < 1) {
+  
+  if (matchDrinks.length < 1) {
     matchDrinks = undefined;
     return matchDrinks;
   }

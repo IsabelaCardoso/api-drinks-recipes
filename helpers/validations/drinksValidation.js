@@ -20,7 +20,7 @@ const validateIngredients = (data) => {
 }
 
 const checkIfDrinkExists = async(drink, origin) => {
-  if (origin === 'updateDrink') {
+  if (origin === 'findByPk') {
     const findDrink = await Drink.findByPk(drink);
     if (!findDrink) return throwNewError('Drinks does not exist', 'not_found');
   }
@@ -36,9 +36,15 @@ const limitsEditableFields = (data) => {
   if (data.userId) throwNewError('User id cannot be edited', 'bad_request');
 };
 
+const validateName = (name) => {
+  const validateName = Joi.object({ name: Joi.string().min(2) }).validate({ name });
+  if (validateName.error) throwNewError(validateName.error.details[0].message, 'bad_request');
+}
+
 module.exports = {
   validateDrinksTableEntries,
   checkIfDrinkExists,
   limitsEditableFields,
   validateIngredients,
+  validateName,
 }

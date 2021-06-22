@@ -47,7 +47,6 @@ const updateDrinkById = rescue(async (req, res) => {
   const { body } = req;
   const token = req.headers.authorization;
   const userId = decodeToken(token).id;
-  console.log('userID', userId);
   const drink = await drinksService.updateById(id, body, userId);
 
   res.status(StatusCodes.OK).json(drink);

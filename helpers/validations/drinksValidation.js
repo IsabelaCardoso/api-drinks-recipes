@@ -25,15 +25,12 @@ const checkIfDrinkExists = async(drink, origin) => {
     if (!findDrink) return throwNewError('Drinks does not exist', 'not_found');
   }
   const findDrink = await Drink.findAll({ where: { name: drink } });
-  console.log('findDrink', findDrink);
     if (findDrink.length !== 0) return throwNewError('This name has already been used for another drink', 'bad_request');
   return null;
 };
 
-const limitsEditableFields = (data) => {
-  if (data.id) throwNewError('Drink id cannot be edited', 'bad_request');
-  if (data.strDrink) throwNewError('Drink name cannot be edited', 'bad_request');
-  if (data.userId) throwNewError('User id cannot be edited', 'bad_request');
+const limitIdEditing = (data) => {
+  if (data.id || data.drinkId) throwNewError('Id cannot be edited', 'bad_request');
 };
 
 const validateName = (name) => {
@@ -44,7 +41,7 @@ const validateName = (name) => {
 module.exports = {
   validateDrinksTableEntries,
   checkIfDrinkExists,
-  limitsEditableFields,
+  limitIdEditing,
   validateIngredients,
   validateName,
 }

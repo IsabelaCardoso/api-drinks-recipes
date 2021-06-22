@@ -5,7 +5,7 @@ const { decodeToken } = require('../helpers/middlewares/tokenMiddleware');
 const {
   validateDrinksTableEntries,
   checkIfDrinkExists,
-  limitsEditableFields,
+  limitIdEditing,
   validateIngredients,
   validateName,
   validateSearch,
@@ -27,15 +27,21 @@ const addDrink = async (body, authorization) => {
   await checkIfDrinkExists(name, 'findByName');
   validateDrinksTableEntries({ name, category, instructions, image });
   const ingredientsList = validateIngredients(body);
-  console.log('INGRED LIST', ingredientsList);
 
   await Drink.create({ name, category, instructions, image });
   const newDrink = await Drink.findOne({ where: { name } });
-  await Promise.all(ingredientsList.map(async(itens) => Ingredient.create({ drinkId: newDrink.dataValues.id, ingredient: itens.ingredient, measure: itens.measure })));
+  await addNewIngredients(ingredientsList, newDrink.dataValues.id);
 
   const completeDrinkRecipe = findOneById(newDrink.id);
   return completeDrinkRecipe;
 };
+
+const addNewIngredients = async(list, drinkId) => {
+  await Promise.all(list.map(async(itens) => {
+    limitIdEditing(itens);
+    Ingredient.create({ drinkId, ingredient: itens.ingredient, measure: itens.measure });
+  }
+  ))};
 
 const findByFirstLetter = async (letter) => {
   const validateLetter = Joi.object({ letter: Joi.string().max(1) }).validate({ letter });
@@ -57,7 +63,7 @@ const findAllByName = async (name) => {
     where: { name: { [Op.substring]: `%${name}%` } },
     include: [{ model: Ingredient, as: 'ingredients' }],
   }).then((result) => result);
-  
+
   if (matchDrinks.length < 1) {
     matchDrinks = undefined;
     return matchDrinks;
@@ -65,12 +71,15 @@ const findAllByName = async (name) => {
   return matchDrinks;
 };
 
-const updateById = async (id, body, userId) => {
+const updateById = async (id, body) => {
   await checkIfDrinkExists(id, 'findByPk');
-  limitsEditableFields(body);
-  await Drink.update({ ...body, updated: new Date() }, { where: { id } });
+  limitIdEditing(body);
+  const ingredientsList = body.ingredients;
+  await Drink.update({ ...body }, { where: { id } });
+  await Ingredient.destroy({ where: { drinkId: id } });
+  await addNewIngredients(ingredientsList, id);
 
-  const updatedDrink = await Drink.findByPk(id);
+  const updatedDrink = await findOneById(id);
   return updatedDrink;
 };
 

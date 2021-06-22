@@ -20,7 +20,7 @@ const findOneById = async(id) => {
       }).then((result) => result);
       console.log('completeDrink[0].dataValues.ingredients --caminho');
   return completeDrink;
-}
+};
 
 const addDrink = async (body, authorization) => {
   const { name, category, instructions, image} = body;

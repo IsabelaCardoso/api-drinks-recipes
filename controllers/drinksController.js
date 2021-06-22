@@ -2,7 +2,7 @@ const rescue = require('express-rescue');
 const { StatusCodes } = require('http-status-codes'); 
 const { decodeToken } = require('../helpers/middlewares/tokenMiddleware');
 const drinksService = require('../services/drinksService');
-const { Drink } = require('../models');
+const { Drink, Ingredient } = require('../models');
 
 const newDrink = rescue(async (req, res) => {
   const body = req.body;
@@ -12,7 +12,11 @@ const newDrink = rescue(async (req, res) => {
 });
 
 const getAllDrinks = rescue(async (req, res) => {
-  const allDrinks = await Drink.findAll();
+  const allDrinks = await Drink.findAll({
+    include: [
+      { model: Ingredient, as: 'ingredients' },
+    ]
+    }).then((result) => result);
   res.status(StatusCodes.OK).json(allDrinks);
 });
 

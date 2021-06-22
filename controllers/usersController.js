@@ -7,6 +7,7 @@ const newUser = rescue(async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
   const user = await usersService.addUser(firstName, lastName, email, password);
   const token = createUserToken(user);
+  
   res.status(StatusCodes.CREATED).json({ token });
 });
 

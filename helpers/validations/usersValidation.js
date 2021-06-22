@@ -4,8 +4,7 @@ const throwNewError = require('./throwNewError');
 
 const validEntries = (data) => {
   const schema = Joi.object({
-    firstName: Joi.string().min(2).required(),
-    lastName: Joi.string().min(2).required(),
+    fullName: Joi.string().min(8).required(),
     password: Joi.string().min(6).required(),
     email: Joi.string().email().required(),
     }).validate(data);

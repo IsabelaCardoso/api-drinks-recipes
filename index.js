@@ -13,5 +13,5 @@ app.use(cors());
 app.use(usersRoute);
 app.use(drinksRoute);
 
-app.use(errorMiddleware);
+// app.use(errorMiddleware);
 app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));

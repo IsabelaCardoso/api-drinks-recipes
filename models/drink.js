@@ -9,5 +9,9 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
   });
 
+  Drink.associate = (models) => {
+    Drink.hasMany(models.Ingredient, { foreignKey: 'drinkId', as: 'ingredients' });
+  };
+
   return Drink;
 };

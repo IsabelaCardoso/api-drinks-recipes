@@ -6,8 +6,7 @@ const { Drink } = require('../models');
 
 const newDrink = rescue(async (req, res) => {
   const body = req.body;
-  const { authorization } = req.headers;
-  const drink = await drinksService.addDrink(body, authorization);
+  const drink = await drinksService.addDrink(body);
 
   res.status(StatusCodes.CREATED).json(drink);
 });

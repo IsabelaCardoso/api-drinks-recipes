@@ -83,10 +83,10 @@ const updateById = async (id, body) => {
   return updatedDrink;
 };
 
-const excludeById = async (id, userId) => {
-  await checkIfDrinkExists(id, userId);
+const excludeById = async (id) => {
+  await checkIfDrinkExists(id, 'findByPk');
   await Drink.destroy({ where: { id } });
-  return 'deleted';
+  return null;
 };
 
 module.exports = {

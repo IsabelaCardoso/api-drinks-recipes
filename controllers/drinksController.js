@@ -45,17 +45,14 @@ const getByName = rescue(async (req, res) => {
 const updateDrinkById = rescue(async (req, res) => {
   const { id } = req.params;
   const { body } = req;
-  const token = req.headers.authorization;
-  const userId = decodeToken(token).id;
-  const drink = await drinksService.updateById(id, body, userId);
+  const drink = await drinksService.updateById(id, body);
 
   res.status(StatusCodes.OK).json(drink);
 });
 
 const deleteDrinkById = rescue(async (req, res) => {
   const { id } = req.params;
-  const userId = decodeToken(req.headers.authorization).id;
-  await drinksService.excludeById(id, userId);
+  await drinksService.excludeById(id);
 
   return res.status(StatusCodes.NO_CONTENT).json();
 });

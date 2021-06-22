@@ -42,7 +42,10 @@ const findByFirstLetter = async (letter) => {
   if (validateLetter.error) throwNewError(validateLetter.error.details[0].message, 'bad_request');
 
   const matchDrinks = Drink.findAll({
-    where: { strDrink: { [Op.startsWith]: `${letter}%` } }
+    where: { name: { [Op.startsWith]: `${letter}%` } },
+    include: [
+      { model: Ingredient, as: 'ingredients' },
+    ]
   }).then((result) => result);
   return matchDrinks;
 };

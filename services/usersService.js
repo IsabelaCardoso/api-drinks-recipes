@@ -1,5 +1,6 @@
 const { User } = require('../models');
 // const { userToken } = require('../helpers/authentication');
+const throwNewError = require('../helpers/validations/throwNewError');
 
 const { alreadyExistEmail, validEntries } = require('../helpers/validations/usersValidation');
 

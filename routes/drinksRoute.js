@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/drink', drinksController.newDrink);
 router.get('/drink/id/:id', drinksController.getById);
 router.get('/drink/name/:name', validateToken, drinksController.getByName);
-router.get('/drink/:letter', validateToken, drinksController.getByFirstLetter);
+router.get('/drink/letter/:letter', validateToken, drinksController.getByFirstLetter);
 router.get('/drink', drinksController.getAllDrinks);
 router.put('/drink/:id', validateToken, drinksController.updateDrinkById);
 router.delete('/drink/:id', validateToken, drinksController.deleteDrinkById);

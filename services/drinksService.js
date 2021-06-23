@@ -18,11 +18,10 @@ const findOneById = async(id) => {
         { model: Ingredient, as: 'ingredients' },
       ]
       }).then((result) => result);
-      console.log('completeDrink[0].dataValues.ingredients --caminho');
-  return completeDrink;
+  return completeDrink[0].dataValues;
 };
 
-const addDrink = async (body, authorization) => {
+const addDrink = async (body) => {
   const { name, category, instructions, image} = body;
   await checkIfDrinkExists(name, 'findByName');
   validateDrinksTableEntries({ name, category, instructions, image });
@@ -59,15 +58,11 @@ const findByFirstLetter = async (letter) => {
 const findAllByName = async (name) => {
   validateName(name);
 
-  let matchDrinks = await Drink.findAll({
+  const matchDrinks = await Drink.findAll({
     where: { name: { [Op.substring]: `%${name}%` } },
     include: [{ model: Ingredient, as: 'ingredients' }],
   }).then((result) => result);
 
-  if (matchDrinks.length < 1) {
-    matchDrinks = undefined;
-    return matchDrinks;
-  }
   return matchDrinks;
 };
 

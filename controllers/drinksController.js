@@ -33,13 +33,14 @@ const getByFirstLetter = rescue(async (req, res) => {
   const { letter } = req.params;
   const drinksList = await drinksService.findByFirstLetter(letter);
 
-  res.status(StatusCodes.CREATED).json({ drinks: drinksList });
+  res.status(StatusCodes.CREATED).json(drinksList);
 });
 
 const getByName = rescue(async (req, res) => {
   const { name } = req.params;
   const drink = await drinksService.findAllByName(name);
-  res.status(StatusCodes.CREATED).json({ drinks: drink });
+  console.log('DRINKKKK', drink);
+  res.status(StatusCodes.CREATED).json(drink);
 });
 
 const updateDrinkById = rescue(async (req, res) => {

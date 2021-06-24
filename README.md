@@ -2,6 +2,7 @@
 
 Esse projeto é a minha solução para o desafio do processo seletivo da Saraiva Educação. A proposta foi desenvolver um sistema web que permitisse consumir uma API para busca de receitas de coquetéis e drinks.
 
+
 ## Desafio Back-End
 
 ## Dependências
@@ -55,4 +56,7 @@ Execute as querys a seguir para povoar o banco de dados (importante executar na 
 Inicie a aplicação
 
 ### `npm start`
+
+#### Observação: É necessário que as duas aplicações estejam rodando localmente.
+
 

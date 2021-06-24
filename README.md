@@ -33,7 +33,7 @@ Inicie seu banco de dados MySQL
 
 ### `sudo systemctl start mysql`
 
-Configure suas variáveis de ambiente com seu usuário e senha do MySQL, hostname e um segredo, conforme campos abaixo
+Configure suas variáveis de ambiente em um arquivo .env na raiz do projeto, com seu usuário e senha do MySQL, hostname e um segredo, conforme campos abaixo
 
 ### `MYSQL_USER=root`
 ### `MYSQL_PASSWORD=suasenha`

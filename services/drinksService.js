@@ -1,64 +1,101 @@
 const { Op } = require('sequelize');
 const Joi = require('joi');
-const { Drink } = require('../models');
+const { Drink, Ingredient } = require('../models');
 const { decodeToken } = require('../helpers/middlewares/tokenMiddleware');
 const {
-  validDrinksEntries,
+  validateDrinksTableEntries,
   checkIfDrinkExists,
-  limitsEditableFields,
-  validateSearch,
+  validateIngredients,
+  validateName,
 } = require('../helpers/validations/drinksValidation');
 const throwNewError = require('../helpers/validations/throwNewError');
 
-const addDrink = async (body, authorization) => {
-  validDrinksEntries(body);
-  const userId = decodeToken(authorization).id;
-  const drink = await Drink
-    .create({ ...body, userId, published: new Date(), updated: new Date() });
-
-  return drink;
+const findOneById = async(id) => {
+  const completeDrink = await Drink.findAll({ where: { id },
+      include: [
+        { model: Ingredient, as: 'ingredients' },
+      ]
+      }).then((result) => result);
+  return completeDrink[0].dataValues;
 };
+
+const addDrink = async (body) => {
+  const { name, category, instructions, image } = body;
+  await checkIfDrinkExists(name, 'findByName');
+  validateDrinksTableEntries({ name, category, instructions, image });
+  const ingredientsList = validateIngredients(body);
+
+  await Drink.create({ name, category, instructions, image });
+  const newDrink = await Drink.findOne({ where: { name } });
+  await addNewIngredients(ingredientsList, newDrink.dataValues.id);
+
+  const completeDrinkRecipe = findOneById(newDrink.id);
+  return completeDrinkRecipe;
+};
+
+const addNewIngredients = async(list, drinkId) => {
+  await Promise.all(list.map(async(itens) => {
+    Ingredient.create({ drinkId, ingredient: itens.ingredient, measure: itens.measure });
+  }
+  ))};
 
 const findByFirstLetter = async (letter) => {
   const validateLetter = Joi.object({ letter: Joi.string().max(1) }).validate({ letter });
   if (validateLetter.error) throwNewError(validateLetter.error.details[0].message, 'bad_request');
 
   const matchDrinks = Drink.findAll({
-    where: { strDrink: { [Op.startsWith]: `${letter}%` } }
+    where: { name: { [Op.startsWith]: `${letter}%` } },
+    include: [
+      { model: Ingredient, as: 'ingredients' },
+    ]
   }).then((result) => result);
   return matchDrinks;
 };
 
-const findByName = async (name) => {
-  const validateName = Joi.object({ name: Joi.string().min(2) }).validate({ name });
-  if (validateName.error) throwNewError(validateName.error.details[0].message, 'bad_request');
+const findAllByName = async (name) => {
+  validateName(name);
 
-  const matchDrinks = Drink.findAll({
-    where: { strDrink: { [Op.substring]: `%${name}%` } }
+  const matchDrinks = await Drink.findAll({
+    where: { name: { [Op.substring]: `%${name}%` } },
+    include: [{ model: Ingredient, as: 'ingredients' }],
   }).then((result) => result);
+
   return matchDrinks;
 };
 
-const updateById = async (id, body, userId) => {
-  await checkIfDrinkExists(id, userId);
-  limitsEditableFields(body);
-  console.log('cheguei aqui')
-  await Drink.update({ ...body, updated: new Date() }, { where: { id } });
+const deleteIds = (list) => {
+  const newList = list.filter((item) => {
+    delete item.id;
+    return item;
+  })
+  return newList;
+}
 
-  const updatedDrink = await Drink.findByPk(id);
+const updateById = async (body) => {
+  const id = body.id;
+  await checkIfDrinkExists(body.id, 'findByPk');
+  const newIngredientsList = deleteIds(body.ingredients);
+  delete body.id;
+
+  await Drink.update({ ...body }, { where: { id } });
+  await Ingredient.destroy({ where: { drinkId: id } });
+  await addNewIngredients(newIngredientsList, id);
+
+  const updatedDrink = await findOneById(id);
   return updatedDrink;
 };
 
-const excludeById = async (id, userId) => {
-  await checkIfDrinkExists(id, userId);
+const excludeById = async (id) => {
+  await checkIfDrinkExists(id, 'findByPk');
   await Drink.destroy({ where: { id } });
-  return 'deleted';
+  return null;
 };
 
 module.exports = {
   addDrink,
+  findOneById,
   findByFirstLetter,
-  findByName,
+  findAllByName,
   updateById,
   excludeById,
 };

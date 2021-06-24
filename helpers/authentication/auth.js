@@ -4,7 +4,7 @@ require('dotenv').config();
 const createUserToken = (user) => {
   const { id, firstName, lastName, email } = user;
   const jwtConfig = {
-    expiresIn: 60 * 5 * 100,
+    expiresIn: 600 * 5 * 100,
     algorithm: 'HS256',
   };
 

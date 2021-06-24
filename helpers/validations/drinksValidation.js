@@ -29,10 +29,6 @@ const checkIfDrinkExists = async(drink, origin) => {
   return null;
 };
 
-const limitIdEditing = (data) => {
-  if (data.id || data.drinkId) throwNewError('Id cannot be edited', 'bad_request');
-};
-
 const validateName = (name) => {
   const validateName = Joi.object({ name: Joi.string().min(2) }).validate({ name });
   if (validateName.error) throwNewError(validateName.error.details[0].message, 'bad_request');
@@ -41,7 +37,6 @@ const validateName = (name) => {
 module.exports = {
   validateDrinksTableEntries,
   checkIfDrinkExists,
-  limitIdEditing,
   validateIngredients,
   validateName,
 }

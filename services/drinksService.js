@@ -5,10 +5,8 @@ const { decodeToken } = require('../helpers/middlewares/tokenMiddleware');
 const {
   validateDrinksTableEntries,
   checkIfDrinkExists,
-  limitIdEditing,
   validateIngredients,
   validateName,
-  validateSearch,
 } = require('../helpers/validations/drinksValidation');
 const throwNewError = require('../helpers/validations/throwNewError');
 
@@ -22,7 +20,7 @@ const findOneById = async(id) => {
 };
 
 const addDrink = async (body) => {
-  const { name, category, instructions, image} = body;
+  const { name, category, instructions, image } = body;
   await checkIfDrinkExists(name, 'findByName');
   validateDrinksTableEntries({ name, category, instructions, image });
   const ingredientsList = validateIngredients(body);
@@ -37,7 +35,6 @@ const addDrink = async (body) => {
 
 const addNewIngredients = async(list, drinkId) => {
   await Promise.all(list.map(async(itens) => {
-    limitIdEditing(itens);
     Ingredient.create({ drinkId, ingredient: itens.ingredient, measure: itens.measure });
   }
   ))};
@@ -66,13 +63,23 @@ const findAllByName = async (name) => {
   return matchDrinks;
 };
 
-const updateById = async (id, body) => {
-  await checkIfDrinkExists(id, 'findByPk');
-  limitIdEditing(body);
-  const ingredientsList = body.ingredients;
+const deleteIds = (list) => {
+  const newList = list.filter((item) => {
+    delete item.id;
+    return item;
+  })
+  return newList;
+}
+
+const updateById = async (body) => {
+  const id = body.id;
+  await checkIfDrinkExists(body.id, 'findByPk');
+  const newIngredientsList = deleteIds(body.ingredients);
+  delete body.id;
+
   await Drink.update({ ...body }, { where: { id } });
   await Ingredient.destroy({ where: { drinkId: id } });
-  await addNewIngredients(ingredientsList, id);
+  await addNewIngredients(newIngredientsList, id);
 
   const updatedDrink = await findOneById(id);
   return updatedDrink;

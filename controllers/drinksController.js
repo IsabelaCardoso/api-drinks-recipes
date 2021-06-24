@@ -6,6 +6,7 @@ const { Drink, Ingredient } = require('../models');
 const { checkIfDrinkExists } = require('../helpers/validations/drinksValidation');
 
 const newDrink = rescue(async (req, res) => {
+  console.log('cheguei aqui');
   const body = req.body;
   const drink = await drinksService.addDrink(body);
 
@@ -44,9 +45,8 @@ const getByName = rescue(async (req, res) => {
 });
 
 const updateDrinkById = rescue(async (req, res) => {
-  const { id } = req.params;
   const { body } = req;
-  const drink = await drinksService.updateById(id, body);
+  const drink = await drinksService.updateById(body);
 
   res.status(StatusCodes.OK).json(drink);
 });
